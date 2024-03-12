@@ -26,6 +26,13 @@ class DjinniSpySpider(scrapy.Spider):
 
     def parse_posts(self, response: Response):
         for job_item in response.css(".job-list__item"):
+            job_info = job_item.css(".job-list-item__job-info.font-weight-500")
+            nobr_texts = job_info.css("span.nobr::text").getall()
+            experience_text = [
+                text
+                for text in nobr_texts
+                if ("досвіду" or "experience") in text
+            ][0][0]
             item = {
                 "title": job_item.css(".job-list-item__title > div > a::text")
                 .get()
@@ -35,6 +42,7 @@ class DjinniSpySpider(scrapy.Spider):
                 )
                 .get()
                 .strip(),
+                "experience": str(experience_text).strip(),
                 "description": job_item.css(
                     ".job-list-item__description > span::attr(data-original-text)"
                 )
